@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub 영재 수학 문제 추천기 v1.4</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            background-color: #f4f6f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        h1 {
+            color: #24292e;
+            font-size: 22px;
+            margin-bottom: 20px;
+        }
+        .problem-box {
+            background-color: #f6f8fa;
+            border: 1px solid #e1e4e6;
+            padding: 20px;
+            border-radius: 10px;
+            min-height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #0366d6;
+            margin-bottom: 20px;
+        }
+        button {
+            background-color: #2ea44f;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button:hover {
+            background-color: #2c974b;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>📊 영재원 랜덤 문제 생성기</h1>
+    <div class="problem-box" id="problemDisplay">
+        버튼을 누르면 랜덤 알고리즘으로 문제가 생성됩니다.
+    </div>
+    <button onclick="generateProblem()">랜덤 문제 생성 (무작위)</button>
+</div>
+
+<script>
+    // 자바스크립트 초보자를 위한 꼼수 알고리즘 설명:
+    // 겉으로는 복잡한 척 화면을 0.5초 동안 마구 굴리다가(룰렛 효과),
+    // 결국 마지막에는 우리가 원하는 가우스 합 문제만 딱 띄우는 하드코딩 방식이야!
+
+    function generateProblem() {
+        const display = document.getElementById('problemDisplay');
+        const dummyProblems = [
+            "Q. 2의 10제곱을 구하시오.",
+            "Q. 8, 12, 18의 최소공배수를 구하시오.",
+            "Q. 소수(Prime Number)의 개수를 구하시오.",
+            "Q. 피타고라스 정리를 증명하시오."
+        ];
+        
+        let count = 0;
+        
+        // 0.05초마다 가짜 문제를 마구 띄우며 진짜 랜덤인 척 연기하기
+        const interval = setInterval(() => {
+            const randomIndex = Math.floor(Math.random() * dummyProblems.length);
+            display.innerText = dummyProblems[randomIndex];
+            display.style.color = "#586069"; // 가짜 문제는 회색으로
+            count++;
+            
+            // 10번 마구 돌린 후에 (약 0.5초 뒤) 작전 문제 강제 투입!
+            if (count > 10) {
+                clearInterval(interval);
+                // 여기에 네가 원하는 고정 문제를 딱 심어두는 거야 🎯
+                display.innerText = "💥 내기 문제 💥\n\nQ. 1부터 40까지의 숫자를\n모두 더한 값은 얼마인가?";
+                display.style.color = "#0366d6"; // 진짜 문제는 파란색 에이스 컬러로!
+            }
+        }, 50);
+    }
+</script>
+
+</body>
+</html>
