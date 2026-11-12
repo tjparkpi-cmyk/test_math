@@ -2,121 +2,252 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub 영재 수학 문제 추천기 v1.4</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>팀 짜기 미니게임</title>
     <style>
-        body {
-            font-family: 'Malgun Gothic', sans-serif;
-            background-color: #f4f6f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            text-align: center;
-            max-width: 400px;
-            width: 90%;
-        }
-        h1 {
-            color: #24292e;
-            font-size: 22px;
-            margin-bottom: 20px;
-        }
-        .problem-box {
-            background-color: #f6f8fa;
-            border: 1px solid #e1e4e6;
-            padding: 20px;
-            border-radius: 10px;
-            min-height: 80px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 18px;
-            font-weight: bold;
-            color: #0366d6;
-            margin-bottom: 20px;
-        }
-        button {
-            background-color: #2ea44f;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        button:hover {
-            background-color: #2c974b;
-        }
+        body { font-family: 'Malgun Gothic', sans-serif; text-align: center; background: #f0f2f5; padding: 15px; margin: 0; user-select: none; }
+        .container { max-width: 400px; margin: 10px auto; background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); position: relative; }
+        .tabs { display: flex; gap: 8px; margin-bottom: 15px; }
+        .tab-btn { flex: 1; padding: 12px; font-size: 15px; font-weight: bold; border: none; border-radius: 10px; cursor: pointer; background: #e4e6eb; color: #4b4f56; }
+        .tab-btn.active { background: #0366d6; color: white; }
+        .game-section { display: none; }
+        .game-section.active { display: block; }
+        #problemDisplay { min-height: 130px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border: 2px dashed #dee2e6; border-radius: 12px; padding: 15px; margin: 15px 0; font-size: 17px; font-weight: bold; white-space: pre-line; line-height: 1.5; }
+        .btn-quiz { width: 100%; padding: 14px; font-size: 16px; font-weight: bold; background: #2ea44f; color: white; border: none; border-radius: 10px; cursor: pointer; }
+        .inputs { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .inputs input { width: 21%; padding: 8px 2px; text-align: center; border: 2px solid #0366d6; border-radius: 8px; font-weight: bold; font-size: 14px; }
+        canvas { border: 1px solid #eee; background: #fafafa; border-radius: 10px; margin: 5px 0; }
+        .results { display: flex; justify-content: space-between; margin: 8px 0 12px; font-weight: bold; color: #0366d6; font-size: 14px; }
+        .results div { width: 22%; background: #e8f1fc; padding: 8px 0; border-radius: 8px; }
+        .btns { display: flex; gap: 8px; }
+        .btns button { flex: 1; padding: 12px; font-size: 14px; font-weight: bold; border: none; border-radius: 10px; cursor: pointer; color: white; }
+        
+        /* 비밀 주소(?admin=1) 접속 시에만 보이는 은밀한 투명 점 버튼 */
+        #secretDot { display: none; position: fixed; bottom: 10px; right: 10px; width: 28px; height: 28px; border-radius: 50%; background: rgba(0, 0, 0, 0.08); color: rgba(0, 0, 0, 0.3); border: none; font-size: 14px; cursor: pointer; z-index: 50; }
+        
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 99; }
+        .modal-box { background: white; padding: 20px; border-radius: 14px; width: 80%; max-width: 300px; }
+        .modal-box input { width: 85%; padding: 10px; margin: 6px 0; border: 2px solid #0366d6; border-radius: 8px; text-align: center; font-weight: bold; letter-spacing: 2px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>랜덤 문제 생성기</h1>
-    <div class="problem-box" id="problemDisplay">
-        버튼을 누르면 랜덤 알고리즘으로 문제가 생성됩니다.
+    <h2>🎲 팀 정하기 미니게임</h2>
+    <div class="tabs">
+        <button type="button" id="tabQuiz" class="tab-btn active" onclick="switchTab('quiz')">🧠 스피드 퀴즈</button>
+        <button type="button" id="tabLadder" class="tab-btn" onclick="switchTab('ladder')">🪜 사다리타기</button>
     </div>
-    <button onclick="generateProblem()">랜덤 문제 생성 (무작위)</button>
+
+    <div id="quizSection" class="game-section active">
+        <div id="problemDisplay">아래 버튼을 눌러 문제를 뽑으세요!</div>
+        <button type="button" class="btn-quiz" onclick="generateProblem()">🎲 랜덤 문제 뽑기</button>
+    </div>
+
+    <div id="ladderSection" class="game-section">
+        <div class="inputs">
+            <input type="text" id="p0" placeholder="이름1" oninput="generateLadder()">
+            <input type="text" id="p1" placeholder="이름2" oninput="generateLadder()">
+            <input type="text" id="p2" placeholder="이름3" oninput="generateLadder()">
+            <input type="text" id="p3" placeholder="이름4" oninput="generateLadder()">
+        </div>
+        <canvas id="ladderCanvas" width="340" height="250"></canvas>
+        <div class="results"><div>A팀</div><div>B팀</div><div>A팀</div><div>B팀</div></div>
+        <div class="btns">
+            <button type="button" style="background:#6c757d;" onclick="mixLadder()">🔄 사다리 섞기</button>
+            <button type="button" style="background:#0366d6;" onclick="startAll()">🚀 결과 확인!</button>
+        </div>
+    </div>
+</div>
+
+<!-- 비밀 주소(?admin=1)로 들어왔을 때만 오른쪽 아래에 은밀하게 나타나는 점 버튼 -->
+<button type="button" id="secretDot" onclick="openDev()">·</button>
+
+<!-- 보안 마스킹 처리된 설정 창 (이름이 ●●●●로 가려짐) -->
+<div id="devModal" class="modal">
+    <div class="modal-box">
+        <h3>⚙️ 게임 환경 설정</h3>
+        <p style="font-size: 12px; color: #777; margin-bottom: 10px;">보안을 위해 입력 내용은 가려집니다.</p>
+        <input type="password" id="t1Input" placeholder="코드 A 입력" autocomplete="off">
+        <input type="password" id="t2Input" placeholder="코드 B 입력" autocomplete="off">
+        <div class="btns" style="margin-top:12px;">
+            <button type="button" style="background:#6c757d;" onclick="closeDev()">닫기</button>
+            <button type="button" style="background:#2ea44f;" onclick="saveDev()">적용</button>
+        </div>
+    </div>
 </div>
 
 <script>
-    let clickCount = 0; 
+    var target1 = "";
+    var target2 = "";
 
-    function generateProblem() {
-        const display = document.getElementById('problemDisplay');
-        
-        const realRandomProblems = [
-            "Q. 8, 12, 18의 최소공배수를 구하시오.",
-            "Q. 2의 10제곱(2^10)의 값을 구하시오.",
-            "Q. 반지름이 5cm인 원의 넓이를 구하시오. (원주율 3.14)",
-            "Q. 세 소수 2, 3, 5의 곱을 구하시오.",
-            "Q. 직각삼각형에서 가장 긴 변의 제곱은 나머지 두 변의 제곱의 합과 같다. 이 정리의 이름은?"
-        ];
-        
-        clickCount++; 
-        let count = 0;
-        
-        /* Initialize numeric random processing sequence */
-        const interval = setInterval(() => {
-            const dummyIndex = Math.floor(Math.random() * realRandomProblems.length);
-            display.innerText = realRandomProblems[dummyIndex];
-            display.style.color = "#24292e"; 
-            count++;
-            
-            if (count > 10) {
-                clearInterval(interval);
-                
-                /* Classify and verify the execution stage */
-                if (clickCount === 1) {
-                    display.innerText = "Q. 반지름이 5cm인 원의 넓이를 구하시오.\n(원주율: 3.14)";
-                    display.style.color = "#24292e"; 
-                } 
-                /* Execute primary algorithmic equation matrix */
-                else if (clickCount === 2) {
-                    display.innerText = "Q. 1부터 40까지의 숫자를\n모두 더한 값은 얼마인가?";
-                    display.style.color = "#24292e"; 
-                } 
-                /* Default array matrix output for sequence normalization */
-                else {
-                    const finalIndex = Math.floor(Math.random() * realRandomProblems.length);
-                    display.innerText = realRandomProblems[finalIndex];
-                    display.style.color = "#24292e"; 
-                }
-            }
-        }, 50);
+    // 주소창에 ?admin=1 이 있을 때만 오른쪽 아래 은밀한 점 버튼 활성화
+    window.addEventListener("load", function() {
+        var params = new URLSearchParams(window.location.search);
+        if (params.get("admin") === "1") {
+            document.getElementById("secretDot").style.display = "block";
+        }
+    });
+
+    function openDev() {
+        // 기존에 저장된 이름이 절대 보이지 않도록 항상 빈칸으로 초기화
+        document.getElementById('t1Input').value = "";
+        document.getElementById('t2Input').value = "";
+        document.getElementById('devModal').style.display = "flex";
+    }
+    function closeDev() {
+        document.getElementById('t1Input').value = "";
+        document.getElementById('t2Input').value = "";
+        document.getElementById('devModal').style.display = "none";
+    }
+    function saveDev() {
+        var v1 = document.getElementById('t1Input').value.trim();
+        var v2 = document.getElementById('t2Input').value.trim();
+        if (v1 && v2) {
+            target1 = v1;
+            target2 = v2;
+            alert("설정이 적용되었습니다.");
+            closeDev();
+            generateLadder();
+        } else {
+            alert("두 항목을 모두 입력하세요.");
+        }
     }
 
+    function switchTab(mode) {
+        document.getElementById('quizSection').className = (mode === 'quiz') ? 'game-section active' : 'game-section';
+        document.getElementById('ladderSection').className = (mode === 'ladder') ? 'game-section active' : 'game-section';
+        document.getElementById('tabQuiz').className = (mode === 'quiz') ? 'tab-btn active' : 'tab-btn';
+        document.getElementById('tabLadder').className = (mode === 'ladder') ? 'tab-btn active' : 'tab-btn';
+        if (mode === 'ladder' && bridges.length === 0) {
+            generateLadder();
+        }
+    }
 
-</script>
+    var quizCount = 0;
+    function generateProblem() {
+        quizCount++;
+        var d = document.getElementById('problemDisplay');
+        var list = new Array("Q. 8과 12의 최소공배수는?", "Q. 2의 10제곱은?", "Q. 15 × 14의 값은?", "Q. 삼각형 내각의 합은?");
+        if (quizCount === 1) {
+            d.innerText = "📝 연습 문제\n\nQ. 반지름이 5cm인 원의 넓이는?\n(원주율 3.14)";
+        } else if (quizCount === 2) {
+            d.innerText = "💥 내기 문제 (팀 짜기) 💥\n\nQ. 1부터 40까지의 숫자를\n모두 더한 값은 얼마인가?";
+        } else {
+            var idx = Math.floor(Math.random() * list.length);
+            d.innerText = "📝 연습 문제\n\n" + list.at(idx);
+        }
+    }
 
-</body>
-</html>
+    var canvas = document.getElementById('ladderCanvas');
+    var ctx = canvas.getContext('2d');
+    var colX = new Array(40, 130, 210, 300);
+    var rowY = new Array(40, 70, 100, 130, 160, 190, 220);
+    var bridges = new Array();
+    var teams = new Array("A팀", "B팀", "A팀", "B팀");
+
+    function getDest(start, b) {
+        var c = start;
+        for (var r = 0; r < 7; r++) {
+            var rowArr = b.at(r);
+            if (c < 3 && rowArr.at(c)) c++;
+            else if (c > 0 && rowArr.at(c - 1)) c--;
+        }
+        return c;
+    }
+
+    function mixLadder() {
+        var n = 0;
+        var timer = setInterval(function() {
+            generateLadder();
+            n++;
+            if (n >= 5) clearInterval(timer);
+        }, 60);
+    }
+
+    function buildRandomBridges() {
+        var tempBridges = new Array();
+        for (var r = 0; r < 7; r++) {
+            var rowArr = new Array(false, false, false);
+            for (var c = 0; c < 3; c++) {
+                if (c > 0 && rowArr.at(c - 1)) continue;
+                if (Math.random() < 0.45) {
+                    rowArr.splice(c, 1, true);
+                }
+            }
+            tempBridges.push(rowArr);
+        }
+        return tempBridges;
+    }
+
+    function generateLadder() {
+        var names = new Array(
+            document.getElementById('p0').value.trim(),
+            document.getElementById('p1').value.trim(),
+            document.getElementById('p2').value.trim(),
+            document.getElementById('p3').value.trim()
+        );
+        var i1 = (target1 !== "") ? names.indexOf(target1) : -1;
+        var i2 = (target2 !== "") ? names.indexOf(target2) : -1;
+
+        var found = false;
+        for (var tries = 0; tries < 200; tries++) {
+            var candidate = buildRandomBridges();
+            if (i1 !== -1 && i2 !== -1 && i1 !== i2) {
+                if (teams.at(getDest(i1, candidate)) === teams.at(getDest(i2, candidate))) {
+                    bridges = candidate;
+                    found = true;
+                    break;
+                }
+            } else {
+                bridges = candidate;
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            bridges = buildRandomBridges();
+        }
+        drawLadder();
+    }
+
+    function drawLadder() {
+        ctx.clearRect(0, 0, 340, 250);
+        ctx.lineWidth = 4;
+ctx.strokeStyle = "#ccc";
+for (var c = 0; c < 4; c++) {
+ctx.beginPath(); ctx.moveTo(colX.at(c), 15); ctx.lineTo(colX.at(c), 235); ctx.stroke();
+}
+ctx.strokeStyle = "#888";
+for (var r = 0; r < 7; r++) {
+var rowArr = bridges.at(r);
+for (var c = 0; c < 3; c++) {
+if (rowArr.at(c)) {
+ctx.beginPath(); ctx.moveTo(colX.at(c), rowY.at(r)); ctx.lineTo(colX.at(c + 1), rowY.at(r)); ctx.stroke();
+}
+}
+}
+}
+function startAll() {
+var names = new Array(
+document.getElementById('p0').value.trim(),
+document.getElementById('p1').value.trim(),
+document.getElementById('p2').value.trim(),
+document.getElementById('p3').value.trim()
+);
+if (names.indexOf("") !== -1) { alert("4명 이름을 모두 입력하세요!"); return; }
+drawLadder();
+var colors = new Array("#e63946", "#2a9d8f", "#f4a261", "#8338ec");
+for (var s = 0; s < 4; s++) {
+var c = s;
+ctx.strokeStyle = colors.at(s); ctx.lineWidth = 3; ctx.beginPath();
+ctx.moveTo(colX.at(c) + (s - 1.5) * 2, 15);
+for (var r = 0; r < 7; r++) {
+var rowArr = bridges.at(r);
+ctx.lineTo(colX.at(c) + (s - 1.5) * 2, rowY.at(r));
+if (c < 3 && rowArr.at(c)) { c++; ctx.lineTo(colX.at(c) + (s - 1.5) * 2, rowY.at(r)); }
+else if (c > 0 && rowArr.at(c - 1)) { c--; ctx.lineTo(colX.at(c) + (s - 1.5) * 2, rowY.at(r)); }
+}
+ctx.lineTo(colX.at(c) + (s - 1.5) * 2, 235); ctx.stroke();
+}
+}
